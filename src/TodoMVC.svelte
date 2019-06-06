@@ -1,8 +1,15 @@
 <script>
 
-import {currentFilter,itemsStore,editingStore, setCurrentFilter, clearCompleted,remove,toggleAll, createNew, handleEdit,submit} from './TodoMVCLogic';
+import {itemsStore, setCurrentFilter,editingStore,currentFilter} from './TodoMVCLogic';
 
-import {get} from 'svelte/store';
+import TodoRow from "./components/TodoRow.svelte";
+import TodoRowEdit from "./components/TodoRowEdit.svelte";
+import TodoMarkAllAsComplete from "./components/TodoMarkAllAsComplete.svelte";
+import TodoClearCompleted from "./components/TodoClearCompleted.svelte";
+import TodoFilters from "./components/TodoFilters.svelte";
+import TodoNumActive from "./components/TodoNumActive.svelte";
+import TodoCreateNew from "./components/TodoCreateNew.svelte";
+
 
     try {
       itemsStore.push( JSON.parse(localStorage.getItem('todos-svelte')));
@@ -41,12 +48,7 @@ import {get} from 'svelte/store';
 
 <header class="header">
 	<h1>todos</h1>
-	<input
-		class="new-todo"
-		on:keydown={createNew}
-		placeholder="What needs to be done?"
-		autofocus
-	>
+	<TodoCreateNew />
 </header>
 
 
@@ -54,51 +56,28 @@ import {get} from 'svelte/store';
 
 {#if $itemsStore.length > 0}
 	<section class="main">
-		<input id="toggle-all" class="toggle-all" type="checkbox" on:change={toggleAll} checked="{numCompleted === $itemsStore.length}">
-		<label for="toggle-all">Mark all as complete</label>
+		<TodoMarkAllAsComplete />
 
 		<ul class="todo-list">
 
 			{#each filtered as item, index (item.id)}
 
 				<li class="{item.completed ? 'completed' : ''} {$editingStore === index ? 'editing' : ''}">
+                    <TodoRow {item} {index} />
+                    <TodoRowEdit {item} {index}/>
 
-					<div class="view">
-						<input class="toggle" type="checkbox" bind:checked={item.completed}>
-                        <label on:dblclick="{() => $editingStore = index}">{item.description}</label>
-						<button on:click="{() => remove(index)}" class="destroy"></button>
-					</div>
-
-					{#if $editingStore === index}
-						<input
-							value='{item.description}'
-							id="edit"
-							class="edit"
-							on:keydown={handleEdit}
-							on:blur={submit}
-							autofocus
-						>
-					{/if}
 				</li>
 			{/each}
 
 		</ul>
 
 		<footer class="footer">
-			<span class="todo-count">
-				<strong>{numActive}</strong> {numActive === 1 ? 'item' : 'items'} left
-			</span>
+			<TodoNumActive {numActive}/>
 
-			<ul class="filters">
-				<li><a class="{$currentFilter === 'all' ? 'selected' : ''}" href="#/">All</a></li>
-				<li><a class="{$currentFilter === 'active' ? 'selected' : ''}" href="#/active">Active</a></li>
-				<li><a class="{$currentFilter === 'completed' ? 'selected' : ''}" href="#/completed">Completed</a></li>
-			</ul>
+			<TodoFilters/>
 
 			{#if numCompleted}
-				<button class="clear-completed" on:click={clearCompleted}>
-					Clear completed
-				</button>
+				<TodoClearCompleted/>
 			{/if}
 		</footer>
 	</section>

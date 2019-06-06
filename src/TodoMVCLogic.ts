@@ -43,6 +43,10 @@ export function remove(index:number) {
   itemsStore.update(items => items.slice(0, index).concat(items.slice(index + 1)));
 }
 
+export const setEditingIndex= (index:number) =>{
+  editingStore.set(index)
+}
+
 export function toggleAll(event:Event) {
   itemsStore.update(items =>  items.map(item => ({
     id: item.id,
@@ -82,6 +86,7 @@ export function handleEdit(event:KeyboardEvent) {
 }
 
 export function submit(event:Event) {
+  console.log('submit: editingStore', get(editingStore));
   itemsStore.update(items =>
     items.map((item, index) => {
       if (index === get(editingStore)) {
@@ -93,7 +98,10 @@ export function submit(event:Event) {
         return item;
       }
     }));
-  editingStore.set(NaN);
+  console.log('submit: after', get(itemsStore));
+
+   // @ts-ignore
+  editingStore.set(undefined);
 }
 
 function uuid() {
