@@ -2,13 +2,13 @@
 
 import {itemsStore, setCurrentFilter,editingStore,currentFilter} from './TodoMVCLogic';
 
-import TodoRow from "./components/TodoRow.svelte";
-import TodoRowEdit from "./components/TodoRowEdit.svelte";
+
 import TodoMarkAllAsComplete from "./components/TodoMarkAllAsComplete.svelte";
 import TodoClearCompleted from "./components/TodoClearCompleted.svelte";
 import TodoFilters from "./components/TodoFilters.svelte";
 import TodoNumActive from "./components/TodoNumActive.svelte";
 import TodoCreateNew from "./components/TodoCreateNew.svelte";
+import TodoList from "./components/TodoList.svelte";
 
 
     try {
@@ -58,18 +58,7 @@ import TodoCreateNew from "./components/TodoCreateNew.svelte";
 	<section class="main">
 		<TodoMarkAllAsComplete />
 
-		<ul class="todo-list">
-
-			{#each filtered as item, index (item.id)}
-
-				<li class="{item.completed ? 'completed' : ''} {$editingStore === index ? 'editing' : ''}">
-                    <TodoRow {item} {index} />
-                    <TodoRowEdit {item} {index}/>
-
-				</li>
-			{/each}
-
-		</ul>
+		<TodoList {filtered}/>
 
 		<footer class="footer">
 			<TodoNumActive {numActive}/>
