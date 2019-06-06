@@ -1,85 +1,39 @@
 <script>
-	const ENTER_KEY = 13;
-	const ESCAPE_KEY = 27;
 
-	let currentFilter = 'all';
-	let items = [];
-	let editing = null;
+import {currentFilter,itemsStore,editingStore, setCurrentFilter, clearCompleted,remove,toggleAll, createNew, handleEdit,submit} from './TodoMVCLogic';
 
-	try {
-		items = JSON.parse(localStorage.getItem('todos-svelte')) || [];
-	} catch (err) {
-		items = [];
-	}
+import {get} from 'svelte/store';
 
-	const updateView = () => {
-		currentFilter = 'all';
-		if (window.location.hash === '#/active') {
-			currentFilter = 'active';
-		} else if (window.location.hash === '#/completed') {
-			currentFilter = 'completed';
-		}
-	};
+    try {
+      itemsStore.push( JSON.parse(localStorage.getItem('todos-svelte')));
+    } catch (err) {
+      itemsStore.length = 0;
+    }
 
-	window.addEventListener('hashchange', updateView);
-	updateView();
+    const updateView = () => {
+      setCurrentFilter(window.location.hash);
+    };
 
-	function clearCompleted() {
-		items = items.filter(item => !item.completed);
-	}
+    window.addEventListener('hashchange', updateView);
+    updateView();
 
-	function remove(index) {
-		items = items.slice(0, index).concat(items.slice(index + 1));
-	}
 
-	function toggleAll(event) {
-		items = items.map(item => ({
-			id: item.id,
-			description: item.description,
-			completed: event.target.checked
-		}));
-	}
+	$: filtered =  $itemsStore.filter(item => {
+	  console.debug('filtred item', JSON.stringify(item), ' $current:',$currentFilter);
+	  switch ($currentFilter) {
+	    case 'all': return true;
+	    case 'completed': return item.completed;
+	    case 'active': return !item.completed;
+	  }
+	});
 
-	function createNew(event) {
-		if (event.which === ENTER_KEY) {
-			items = items.concat({
-				id: uuid(),
-				description: event.target.value,
-				completed: false
-			});
-			event.target.value = '';
-		}
-	}
 
-	function handleEdit(event) {
-		if (event.which === ENTER_KEY) event.target.blur();
-		else if (event.which === ESCAPE_KEY) editing = null;
-	}
+	$: numActive = $itemsStore.filter(item => !(item && item.completed)).length;
 
-	function submit(event) {
-		items[editing].description = event.target.value;
-		editing = null;
-	}
-
-	function uuid() {
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-			var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-			return v.toString(16);
-		});
-	}
-
-	$: filtered = currentFilter === 'all'
-		? items
-		: currentFilter === 'completed'
-			? items.filter(item => item.completed)
-			: items.filter(item => !item.completed);
-
-	$: numActive = items.filter(item => !item.completed).length;
-
-	$: numCompleted = items.filter(item => item.completed).length;
+	$: numCompleted = $itemsStore.filter(item => (item && item.completed)).length;
 
 	$: try {
-		localStorage.setItem('todos-svelte', JSON.stringify(items));
+		localStorage.setItem('todos-svelte', JSON.stringify($itemsStore));
 	} catch (err) {
 		// noop
 	}
@@ -95,21 +49,27 @@
 	>
 </header>
 
-{#if items.length > 0}
+
+
+
+{#if $itemsStore.length > 0}
 	<section class="main">
-		<input id="toggle-all" class="toggle-all" type="checkbox" on:change={toggleAll} checked="{numCompleted === items.length}">
+		<input id="toggle-all" class="toggle-all" type="checkbox" on:change={toggleAll} checked="{numCompleted === $itemsStore.length}">
 		<label for="toggle-all">Mark all as complete</label>
 
 		<ul class="todo-list">
+
 			{#each filtered as item, index (item.id)}
-				<li class="{item.completed ? 'completed' : ''} {editing === index ? 'editing' : ''}">
+
+				<li class="{item.completed ? 'completed' : ''} {$editingStore === index ? 'editing' : ''}">
+
 					<div class="view">
 						<input class="toggle" type="checkbox" bind:checked={item.completed}>
-						<label on:dblclick="{() => editing = index}">{item.description}</label>
+                        <label on:dblclick="{() => $editingStore = index}">{item.description}</label>
 						<button on:click="{() => remove(index)}" class="destroy"></button>
 					</div>
 
-					{#if editing === index}
+					{#if $editingStore === index}
 						<input
 							value='{item.description}'
 							id="edit"
@@ -121,6 +81,7 @@
 					{/if}
 				</li>
 			{/each}
+
 		</ul>
 
 		<footer class="footer">
@@ -129,9 +90,9 @@
 			</span>
 
 			<ul class="filters">
-				<li><a class="{currentFilter === 'all' ? 'selected' : ''}" href="#/">All</a></li>
-				<li><a class="{currentFilter === 'active' ? 'selected' : ''}" href="#/active">Active</a></li>
-				<li><a class="{currentFilter === 'completed' ? 'selected' : ''}" href="#/completed">Completed</a></li>
+				<li><a class="{$currentFilter === 'all' ? 'selected' : ''}" href="#/">All</a></li>
+				<li><a class="{$currentFilter === 'active' ? 'selected' : ''}" href="#/active">Active</a></li>
+				<li><a class="{$currentFilter === 'completed' ? 'selected' : ''}" href="#/completed">Completed</a></li>
 			</ul>
 
 			{#if numCompleted}
@@ -142,3 +103,5 @@
 		</footer>
 	</section>
 {/if}
+
+
