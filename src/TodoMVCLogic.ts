@@ -1,3 +1,4 @@
+//TODO use original @pyoner svelte-types as soon as this issue https://github.com/pyoner/svelte-types/issues/4 gone
 import {Writable} from '@pyoner/svelte-types/types/svelte/interfaces';
 import {derived, get, writable} from 'svelte/store';
 

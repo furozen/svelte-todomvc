@@ -1,14 +1,12 @@
 {
   "name": "svelte-ts-todomvc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TodoMVC implemented in Svelte+Typescript",
   "scripts": {
     "copyfiles": "mkdir -p dist && cp node_modules/todomvc-app-css/index.css public/todomvc-app-css.css && cp node_modules/todomvc-common/base.css public/todomvc-common.css && cp node_modules/todomvc-common/base.js public/todomvc-common.js",
     "build": "npm run copyfiles && rollup -c",
-    "dev1": "npm run copyfiles && rollup -cw",
-    "deploy": "surge public svelte-todomvc.surge.sh",
+    "deploy": "surge public svelte-ts-todomvc.surge.sh",
     "predeploy": "npm run build",
-    "start1": "http-server public & npm run dev & open http://localhost:8080",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
     "start": "sirv public",
@@ -27,7 +25,7 @@
     "svelte",
     "todomvc"
   ],
-  "author": "Rich Harris",
+  "author": "Rich Harris, Andy Malahovsky",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/sveltejs/svelte-todomvc/issues"
